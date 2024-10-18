@@ -25,7 +25,7 @@ export function ImageNode({ data }: NodeProps<ImageNode>) {
       <NodeResizer
         minWidth={50}
         minHeight={50}
-        onResize={(evt, params) => {
+        onResize={(_, params) => {
           const aspectRatio = width / height;
           const newHeight = Math.floor(params.width / aspectRatio);
           setWidth(params.width);
@@ -40,6 +40,7 @@ export function ImageNode({ data }: NodeProps<ImageNode>) {
       />
       <Handle type="source" position={Position.Bottom} />
       <Handle type="target" position={Position.Top} />
+
     </div>
   );
 }
