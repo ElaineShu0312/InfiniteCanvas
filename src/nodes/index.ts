@@ -43,7 +43,7 @@ export const initialNodes: AppNode[] = [
 export const nodeTypes = {
   default: TextNode,
   "position-logger": PositionLoggerNode,
-  image: ImageNode,
+  "image": ImageNode,
   // 'text': TextNode,
 
   // Add any of your custom nodes here!
