@@ -8,10 +8,10 @@ export function ImageNode({ data }: NodeProps<ImageNode>) {
   const [height, setHeight] = useState(150);
 
   useEffect(() => {
-    if (data.imageUrl) {
-      setImageUrl(data.imageUrl);
+    if (data.content) {
+      setImageUrl(data.content);
     }
-  }, [data.imageUrl]);
+  }, [data.content]);
 
   return (
     <div
