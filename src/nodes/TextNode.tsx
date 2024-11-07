@@ -4,11 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import { type TextNode } from "./types";
 
 export function TextNode({ data }: NodeProps<TextNode>) {
-  const [label, setLabel] = useState(data.label || "");
+  const [content, setContent] = useState(data.content || "");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setLabel(e.target.value);
+    setContent(e.target.value);
   };
 
   useEffect(() => {
@@ -18,13 +18,13 @@ export function TextNode({ data }: NodeProps<TextNode>) {
         textArea.style.height = `${textArea.scrollHeight}px`;
       }
     }
-  }, [label]);
+  }, [content]);
 
   return (
     <div className="react-flow__node-default" style={{ width: "fit-content" }}>
       <textarea
         ref={textareaRef}
-        value={label}
+        value={content}
         onChange={handleChange}
         style={{
           width: "100%",
