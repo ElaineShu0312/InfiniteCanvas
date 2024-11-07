@@ -11,8 +11,7 @@ body,
   margin: 0;
 }
 
-.highlight {
-  border: 2px solid green !important;
+.highlight-green {
   background-color: greenyellow !important;
 }
 

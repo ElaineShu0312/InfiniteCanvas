@@ -6,7 +6,6 @@ const IntersectionNode = ({ data }: any) => {
     <div
       style={{
         padding: 10,
-        background: '#ffffff',
         border: '1px solid #333',
         borderRadius: '5px',
       }}
