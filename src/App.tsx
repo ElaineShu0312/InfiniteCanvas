@@ -25,13 +25,13 @@ export default function App() {
 
       // Check if the target node is of type "functionNode"
       if (targetNode && targetNode.type === "function") {
-        // Add custom behavior here for connecting to a functionNode
-        const animatedConnection = { ...connection, type: "wire" }; // Use your custom wire edge type
+        const animatedConnection = { ...connection, type: "wire" }; // Use custom wire edge type
         setEdges((edges) => addEdge(animatedConnection, edges));
 
         // Copy content from sourceNode to targetNode's content field if applicable
         if (sourceNode && targetNode) {
           console.log("Connected to function node");
+          console.log("content: " + sourceNode.data.content);
 
           setNodes(
             (nodes) =>
