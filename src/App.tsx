@@ -1,24 +1,29 @@
-import { useCallback } from "react";
+import { useCallback, type MouseEvent} from "react";
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
   addEdge,
+  Node,
   useNodesState,
   useEdgesState,
   type OnConnect,
+  useReactFlow, //import for intersection detection
+  ReactFlowProvider, // Import ReactFlowProvider
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 import { AppNode } from "./nodes/types";
-import { initialNodes, nodeTypes } from "./nodes";
-import { initialEdges, edgeTypes } from "./edges";
+import { initialNodes, nodeTypes } from "./nodes"; // import initial nodes and custom nodes
+import { initialEdges, edgeTypes } from "./edges"; // initial edges and custom edges
 
-export default function App() {
+const Flow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const onConnect: OnConnect = useCallback(
+  const { getIntersectingNodes } = useReactFlow(); // React Flow's intersection detection
+
+  const onConnect: OnConnect = useCallback( // when nodes are connected to one another, call this code.
     (connection) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
@@ -59,6 +64,21 @@ export default function App() {
     },
     [nodes, setEdges, setNodes]
   );
+
+
+  // Whenever nodes are dragged, call this function (for detecting intersections)
+  const onNodeDrag = useCallback((_: MouseEvent, node: Node) => {
+    const intersections = getIntersectingNodes(node).map((n) => n.id);
+ 
+    setNodes((ns) =>
+      ns.map((n) => ({
+        ...n,
+        className: intersections.includes(n.id) ? 'highlight' : '',
+      })),
+    );
+  }, []);
+  
+  
   
   const addNode = () => {
     const newNode = {
@@ -75,20 +95,29 @@ export default function App() {
   return (
     <>
       <button onClick={addNode}> Add Node</button>
-      <ReactFlow
-        nodes={nodes}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        edges={edges}
-        edgeTypes={edgeTypes}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-      >
-        <Background />
-        <MiniMap />
-        <Controls />
-      </ReactFlow>
+        <ReactFlow
+          nodes={nodes}
+          nodeTypes={nodeTypes}
+          onNodesChange={onNodesChange}
+          onNodeDrag={onNodeDrag}
+          edges={edges}
+          edgeTypes={edgeTypes}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+        >
+          <Background />
+          <MiniMap />
+          <Controls />
+        </ReactFlow>
     </>
   );
+}
+
+export default function App() {
+  return(
+    <ReactFlowProvider>
+      <Flow />
+    </ReactFlowProvider>
+  )
 }

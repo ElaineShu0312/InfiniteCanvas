@@ -10,3 +10,9 @@ body,
   height: 100%;
   margin: 0;
 }
+
+.highlight {
+  border: 2px solid green !important;
+  background-color: greenyellow !important;
+}
+

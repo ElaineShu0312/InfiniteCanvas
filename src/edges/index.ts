@@ -1,5 +1,5 @@
 import type { Edge, EdgeTypes } from "@xyflow/react";
-import WireEdge from "./wireEdge";
+import WireEdge from "./WireEdge";
 
 export const initialEdges: Edge[] = [
   // { id: "a->c", source: "a", target: "c", animated: true },
