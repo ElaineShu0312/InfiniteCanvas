@@ -25,6 +25,8 @@ export function ImageNode({ data }: NodeProps<ImageNode>) {
       <NodeResizer
         minWidth={50}
         minHeight={50}
+        keepAspectRatio={true}
+        color="black"
         onResize={(_, params) => {
           const aspectRatio = width / height;
           const newHeight = Math.floor(params.width / aspectRatio);
@@ -39,8 +41,9 @@ export function ImageNode({ data }: NodeProps<ImageNode>) {
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
       <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} />
+      <Handle type="target" position={Position.Left} />
       <Handle type="target" position={Position.Top} />
-
     </div>
   );
 }

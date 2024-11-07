@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   ReactFlow,
   Background,
@@ -18,6 +18,57 @@ import { initialEdges, edgeTypes } from "./edges";
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [clipboard, setClipboard] = useState<Array<AppNode> | null>(null);
+
+
+  const handleKeydown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey) {
+        if (event.key === "c" || event.key === "C") {
+          handleCopy(event);
+        } else if (event.key === "x" || event.key === "X") {
+          handleCut(event);
+        } else if (event.key === "v" || event.key === "V") {
+          handlePaste(event);
+        }
+      }
+    },
+    [nodes, clipboard]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.removeEventListener("keydown", handleKeydown);
+    };
+  }, [handleKeydown]);
+
+  const handleCopy = (event: KeyboardEvent) => {
+    const selectedNodes = nodes.filter((node) => node.selected); // Assuming `selected` is part of your node data
+    setClipboard(selectedNodes);
+    event.preventDefault();
+  };
+
+  const handleCut = (event: KeyboardEvent) => {
+    const selectedNodes = nodes.filter((node) => node.selected);
+    setClipboard(selectedNodes);
+    setNodes((nodes) => nodes.filter((node) => !node.selected)); // Remove selected nodes
+    event.preventDefault();
+  };
+
+  const handlePaste = (event: KeyboardEvent) => {
+    if (clipboard) {
+      const newNodes = clipboard.map((node) => ({
+        ...node,
+        id: `${nodes.length + 1}`, // New unique ID
+        position: { x: node.position.x + 20, y: node.position.y + 20 }, // Slight offset
+      }));
+
+      setNodes((nodes) => [...nodes, ...newNodes]);
+      event.preventDefault();
+    }
+  };
+
   const onConnect: OnConnect = useCallback(
     (connection) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
@@ -31,7 +82,7 @@ export default function App() {
         // Copy content from sourceNode to targetNode's content field if applicable
         if (sourceNode && targetNode) {
           console.log("Connected to function node");
-          console.log("content: " + sourceNode.data.content);
+          // console.log("content: " + sourceNode.data.content);
 
           setNodes(
             (nodes) =>
@@ -59,7 +110,7 @@ export default function App() {
     },
     [nodes, setEdges, setNodes]
   );
-  
+
   const addNode = () => {
     const newNode = {
       id: `${nodes.length + 1}`,

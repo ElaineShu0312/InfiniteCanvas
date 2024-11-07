@@ -20,7 +20,6 @@ export function TextNode({ data }: NodeProps<TextNode>) {
   }, [content]);
 
   return (
-    console.log("textnode content: ", content),
     (
       <div
         className="react-flow__node-default"
@@ -43,6 +42,8 @@ export function TextNode({ data }: NodeProps<TextNode>) {
           }}
         />
         <Handle type="source" position={Position.Bottom} />
+        <Handle type="source" position={Position.Right} />
+        <Handle type="target" position={Position.Left} />
         <Handle type="target" position={Position.Top} />
       </div>
     )
