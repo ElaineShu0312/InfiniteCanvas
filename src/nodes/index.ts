@@ -25,7 +25,7 @@ export const initialNodes: AppNode[] = [
   {
     id: "e",
     type: "image",
-    position: { x: -150, y: 200 },
+    position: { x: -150, y: 150 },
     data: {
       content:
         "https://upload.wikimedia.org/wikipedia/commons/8/87/Vincent_van_Gogh_-_Head_of_a_skeleton_with_a_burning_cigarette_-_Google_Art_Project.jpg",
@@ -43,7 +43,7 @@ export const initialNodes: AppNode[] = [
   {
     id: "f",
     type: "function",
-    position: { x: -200, y: 400 },
+    position: { x: 400, y: 500 },
     data: {
       content: "",
     },
@@ -51,10 +51,16 @@ export const initialNodes: AppNode[] = [
   {
     id: "intersection-1",
     type: "intersection",
-    position: { x: 150, y: 150 },
+    position: { x: 150, y: 300 },
     data: {
       content: "Intersection Node (drag onto me!)",
     },
+  },
+  {
+    id: "g",
+    type: "input",
+    position: { x: 100, y: 400 },
+    data: { label: "a bunny wearing a witch hat" },
   },
 ];
 

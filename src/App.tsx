@@ -27,7 +27,7 @@ const Flow = () => {
   const { getIntersectingNodes } = useReactFlow(); // React Flow's intersection detection
 
   const onConnect: OnConnect = useCallback(
-    (connection) => {
+    async (connection) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
@@ -59,6 +59,13 @@ const Flow = () => {
                   : node
               ) as AppNode[] // Cast to AppNode[] to satisfy TypeScript
           );
+          const prompt =
+            "content" in sourceNode.data
+              ? sourceNode.data.content
+              : sourceNode.data.label;
+          console.log(`Generating image with prompt: ${prompt}`);
+          // Call the generateImageNode function with the prompt
+          // await generateImageNode(prompt);
         }
       } else {
         // Default behavior for regular nodes
@@ -159,62 +166,75 @@ const Flow = () => {
     setNodes((prevNodes) => [...prevNodes, newNode]);
   };
 
-  const generateImageNode = async (prompt: string = "bunny on the moon") => {
-    //bunny on the moon by default
-    console.log("generating image...");
-    //TODO: create a node that says " loading... " and take note of its id. replace that node with the new image once its done generating
-    try {
-      const apiKey = import.meta.env.VITE_STABLE_DIFFUSION_API_KEY; // For Vite
+  const generateImageNode = useCallback(
+    async (prompt: string = "bunny on the moon") => {
+      // Create a temporary "loading" node
+      const loadingNodeId = `loading-${Date.now()}`;
+      const loadingNode: AppNode = {
+        id: loadingNodeId,
+        type: "default",
+        position: { x: 250, y: 250 },
+        data: { label: "", content: "Loading..." },
+      };
+      setNodes((nodes) => [...nodes, loadingNode]);
 
-      if (!apiKey) {
-        throw new Error("API key is missing!");
-      }
-      console.log("found api key...");
+      try {
+        const apiKey = import.meta.env.VITE_STABLE_DIFFUSION_API_KEY;
 
-      // Prepare the FormData payload to send to the SD servers...
-      const formData = new FormData();
-      formData.append("prompt", prompt); // Use provided prompt or default
-      formData.append("output_format", "webp");
-
-      const response = await axios.post(
-        "https://api.stability.ai/v2beta/stable-image/generate/core",
-        formData,
-        {
-          responseType: "arraybuffer",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            Accept: "image/*",
-          },
+        if (!apiKey) {
+          throw new Error("API key is missing!");
         }
-      );
 
-      console.log(response);
+        const formData = new FormData();
+        formData.append("prompt", prompt);
+        formData.append("output_format", "webp");
 
-      if (response.status === 200) {
-        console.log("received image!!");
-        const base64Image: string = `data:image/webp;base64,${btoa(
-          new Uint8Array(response.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
-        )}`;
+        const response = await axios.post(
+          "https://api.stability.ai/v2beta/stable-image/generate/core",
+          formData,
+          {
+            responseType: "arraybuffer",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              Accept: "image/*",
+            },
+          }
+        );
 
-        console.log("converted image to base64");
-        console.log(base64Image);
+        if (response.status === 200) {
+          const base64Image = `data:image/webp;base64,${btoa(
+            new Uint8Array(response.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ""
+            )
+          )}`;
 
-        // Add an Image Node with the generated image data
-        addImageNode(base64Image);
-      } else {
-        console.error(`API Error: ${response.status}`);
+          // Add an Image Node with the generated image data
+          const newImageNode: AppNode = {
+            id: `image-${Date.now()}`,
+            type: "image",
+            position: { x: 250, y: 250 },
+            data: { content: base64Image },
+          };
+
+          setNodes((nodes) =>
+            nodes.map((node) =>
+              node.id === loadingNodeId ? newImageNode : node
+            )
+          );
+        } else {
+          console.error(`API Error: ${response.status}`);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Failed to generate image:", error.message);
+        } else {
+          console.error("Unknown error occurred:", error);
+        }
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Failed to generate image:", error.message);
-      } else {
-        console.error("Unknown error occurred:", error);
-      }
-    }
-  };
+    },
+    [setNodes]
+  );
 
   return (
     <>
