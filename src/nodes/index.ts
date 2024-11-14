@@ -8,7 +8,6 @@ import FunctionNode from "./FunctionNode";
 import IntersectionNode from "./IntersectionNode";
 
 export const initialNodes: AppNode[] = [
-  
   { id: "a", type: "input", position: { x: 0, y: 0 }, data: { label: "wire" } },
   {
     id: "b",
@@ -37,8 +36,7 @@ export const initialNodes: AppNode[] = [
   //   type: "image",
   //   position: { x: -200, y: 400 },
   //   data: {
-  //     imageUrl:
-  //       "https://www.vincentvangogh.org/assets/img/self-portrait.jpg",
+  //     content: "https://www.vincentvangogh.org/assets/img/self-portrait.jpg",
   //   },
   // },
 
@@ -51,10 +49,10 @@ export const initialNodes: AppNode[] = [
     },
   },
   {
-    id: 'intersection-1',
-    type: 'intersection',
+    id: "intersection-1",
+    type: "intersection",
     position: { x: 150, y: 150 },
-    data: { label: 'Intersection Node (drag onto me!)' },
+    data: { label: "Intersection Node (drag onto me!)" },
   },
 ];
 
