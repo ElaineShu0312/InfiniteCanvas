@@ -20,7 +20,6 @@ export default function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [clipboard, setClipboard] = useState<Array<AppNode> | null>(null);
 
-
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey) {

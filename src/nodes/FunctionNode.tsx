@@ -9,7 +9,10 @@ interface CustomFunctionNodeProps {
 
 const CustomFunctionNode: React.FC<CustomFunctionNodeProps> = ({ data }) => {
   return (
-    <div className="react-flow__node-default" style={{ width: "fit-content" }}>
+    <div
+      className="react-flow__node-default"
+      style={{ color: "blue", width: "fit-content" }}
+    >
       <h3>Function Node</h3>
       <div>{data.content || "Awaiting input..."}</div>{" "}
       {/* Display connected node content */}
