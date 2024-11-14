@@ -1,17 +1,18 @@
-import React, { memo } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import React, { memo } from "react";
+import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { type IntersectionNode } from "./types";
 
-const IntersectionNode = ({ data }: any) => {
+const IntersectionNode = ({ data }: NodeProps<IntersectionNode>) => {
   return (
     <div
       style={{
         padding: 10,
-        border: '1px solid #333',
-        borderRadius: '5px',
+        border: "1px solid #333",
+        borderRadius: "5px",
       }}
       className={data.className} // Add highlight class dynamically
     >
-      <div>{data.label || 'Intersection Node'}</div>
+      <div>{data.content || "Intersection Node"}</div>
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
     </div>
