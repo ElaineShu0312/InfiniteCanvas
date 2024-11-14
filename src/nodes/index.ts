@@ -52,7 +52,9 @@ export const initialNodes: AppNode[] = [
     id: "intersection-1",
     type: "intersection",
     position: { x: 150, y: 150 },
-    data: { label: "Intersection Node (drag onto me!)" },
+    data: {
+      content: "Intersection Node (drag onto me!)",
+    },
   },
 ];
 
