@@ -1,4 +1,3 @@
-
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { useState, useRef, useEffect } from "react";
 import { type TextNode } from "./types";
@@ -19,6 +18,7 @@ export function TextNode({ data }: NodeProps<TextNode>) {
       }
     }
   }, [content]);
+  console.log(`TextNode content is currently: ${content}`);
 
   return (
     <div className="react-flow__node-default" style={{ width: "fit-content" }}>

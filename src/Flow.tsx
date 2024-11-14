@@ -16,7 +16,7 @@ import "@xyflow/react/dist/style.css";
 import { AppNode } from "./nodes/types";
 import { initialNodes, nodeTypes } from "./nodes";
 import { initialEdges, edgeTypes } from "./edges";
-import useClipboard from "./useClipboard";
+import useClipboard from "./hooks/useClipboard";
 
 const Flow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -39,7 +39,7 @@ const Flow = () => {
   }, [handleCopy, handleCut, handlePaste]);
 
   const onConnect: OnConnect = useCallback(
-    async (connection) => {
+    (connection) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
@@ -48,6 +48,14 @@ const Flow = () => {
         setEdges((edges) => addEdge(animatedConnection, edges));
 
         if (sourceNode && targetNode) {
+          const content =
+            "content" in sourceNode.data
+              ? sourceNode.data.content
+              : sourceNode.data.label;
+
+          console.log(`functionNode content is currently: ${content}`);
+
+          // Update the target node's content after the source node content is ready
           setNodes(
             (nodes) =>
               nodes.map((node) =>
@@ -56,21 +64,19 @@ const Flow = () => {
                       ...node,
                       data: {
                         ...node.data,
-                        content:
-                          "content" in sourceNode.data
-                            ? sourceNode.data.content
-                            : sourceNode.data.label,
+                        content: content,
                       },
                     }
                   : node
               ) as AppNode[]
           );
+
           const prompt =
             "content" in sourceNode.data
               ? sourceNode.data.content
               : sourceNode.data.label;
           console.log(`Generating image with prompt: ${prompt}`);
-          await generateImageNode(prompt);
+          //   await generateImageNode(prompt);
         }
       } else {
         setEdges((edges) => addEdge(connection, edges));
