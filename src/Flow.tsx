@@ -39,7 +39,7 @@ const Flow = () => {
   }, [handleCopy, handleCut, handlePaste]);
 
   const onConnect: OnConnect = useCallback(
-    (connection) => {
+    async (connection) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
       const targetNode = nodes.find((node) => node.id === connection.target);
 
@@ -109,7 +109,10 @@ const Flow = () => {
         x: Math.random() * 250,
         y: Math.random() * 250,
       },
-      data: { label: `Text Node ${nodes.length + 1}`, content: "it display" },
+      data: {
+        label: `Text Node ${nodes.length + 1}`,
+        content: "your text here",
+      },
     };
 
     setNodes((prevNodes) => [...prevNodes, newDefaultNode]);
