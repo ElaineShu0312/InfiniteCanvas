@@ -22,4 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+ 
+# don't include my api key!! :3
 .env
+
