@@ -60,7 +60,16 @@ export const initialNodes: AppNode[] = [
     id: "g",
     type: "input",
     position: { x: 100, y: 400 },
-    data: { label: "a bunny wearing a witch hat" },
+    data: { label: "simple vector logo for a AI Art generation website" },
+  },
+  {
+    id: "h",
+    type: "input",
+    position: { x: 200, y: 400 },
+    data: {
+      label:
+        "simple vector logo for AI art generation tool, similar to Figma logo, with white background",
+    },
   },
 ];
 

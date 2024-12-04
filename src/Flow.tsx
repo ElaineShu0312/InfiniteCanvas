@@ -76,7 +76,7 @@ const Flow = () => {
               ? sourceNode.data.content
               : sourceNode.data.label;
           console.log(`Generating image with prompt: ${prompt}`);
-          //   await generateImageNode(prompt);
+          await generateImageNode(prompt);
         }
       } else {
         setEdges((edges) => addEdge(connection, edges));
