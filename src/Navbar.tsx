@@ -4,10 +4,10 @@ const Navbar = () => {
   return (
     <nav>
       <Link to="/">
-        <h2>About</h2>
+        <p>About</p>
       </Link>
       <Link to="/canvas">
-        <h2>Canvas</h2>
+        <p>Canvas</p>
       </Link>
     </nav>
   );
