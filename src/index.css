@@ -8,11 +8,11 @@
 /* Custom global styles */
 :root {
   --font-primary: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --color-bg: #fcfafa; /* Light background color */
+  --color-bg: #FCFAFA; /* Light background color */
   --color-text: #333333; /* Text color */
   --color-primary: #01b6ff; /* Title blue */
   --color-secondary: #2563eb; /* Another shade of blue */
-  --color-accent: #10b981; /* Accent color (green) */
+  --color-accent: hsl(84, 100%, 75%); /* Accent color (green) */
   --color-link: #3b82f6; /* Link color */
   --color-button-bg: #2563eb; /* Button background */
   --color-button-text: #ffffff; /* Button text */
