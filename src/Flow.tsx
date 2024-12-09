@@ -137,10 +137,9 @@ const Flow = () => {
     setNodes((prevNodes) => [...prevNodes, newNode]);
   };
 
-
-
   const generateImageNode = useCallback(
     async (prompt: string = "bunny on the moon") => {
+      console.log(`Generating image with prompt: ${prompt}`);
       const loadingNodeId = `loading-${Date.now()}`;
       const loadingNode: AppNode = {
         id: loadingNodeId,
@@ -151,10 +150,6 @@ const Flow = () => {
       setNodes((nodes) => [...nodes, loadingNode]);
 
       try {
-        // const apiKey = import.meta.env.VITE_STABLE_DIFFUSION_API_KEY; // don't need API key anymore; using reagent! 
-        // if (!apiKey) {
-        //   throw new Error("API key is missing!");
-        // } 
         const formData = new FormData();
         formData.append("prompt", prompt); // make the prompt into form data
 
@@ -180,7 +175,7 @@ const Flow = () => {
             );
 
           } else {
-            console.error(`Genreation Error: ${response.status}`);
+            console.error(`Generation Error: ${response.status}`);
           }
         } 
         catch (error) {

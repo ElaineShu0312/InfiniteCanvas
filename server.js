@@ -17,13 +17,12 @@ app.use(express.json());
 
 app.post("/api/generate-image", async (req, res) => {
   const { prompt = "lizard on saturn" } = req.body; //default prompt with no form data
-
+  
   const formData = new URLSearchParams();
   formData.append("prompt", prompt);
   formData.append("output_format", "webp");
-  console.log("prompt:", prompt);
 
-  console.log("MESSAGING REAGENT...")
+  console.log("MESSAGING REAGENT... with prompt:", prompt);
 
   try {
     const response = await fetch(
@@ -35,7 +34,7 @@ app.post("/api/generate-image", async (req, res) => {
           Authorization: 'Bearer rg_v1_mc66rqibqakaslgktuy89n5lfjhdygcwvfj2_ngk',
         },
         body: JSON.stringify({
-          "prompt": "alligator on mars",
+          "prompt": prompt,
         }),
       }
     );
