@@ -13,7 +13,7 @@ const CustomFunctionNode: React.FC<CustomFunctionNodeProps> = ({ data }) => {
       className="react-flow__node-default"
       style={{ color: "blue", width: "fit-content" }}
     >
-      <h3>Function Node</h3>
+      <h3>Prompt Node</h3>
       <div>{data.content || "Awaiting input..."}</div>{" "}
       {/* Display connected node content */}
       <Handle type="target" position={Position.Left} />
