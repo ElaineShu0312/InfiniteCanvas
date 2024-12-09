@@ -119,6 +119,7 @@ const Flow = () => {
   };
 
   const addImageNode = (content?: string) => {
+    console.log(content);
     const newNode: AppNode = {
       id: `image-${nodes.length + 1}`,
       type: "image",
@@ -129,12 +130,14 @@ const Flow = () => {
       data: {
         content:
           content ??
-          "https://upload.wikimedia.org/wikipedia/commons/8/87/Vincent_van_Gogh_-_Head_of_a_skeleton_with_a_burning_cigarette_-_Google_Art_Project.jpg",
+          "https://noggin-run-outputs.rgdata.net/b88eb8b8-b2b9-47b2-9796-47fcd15b7289.webp",
       },
     };
 
     setNodes((prevNodes) => [...prevNodes, newNode]);
   };
+
+
 
   const generateImageNode = useCallback(
     async (prompt: string = "bunny on the moon") => {
@@ -148,58 +151,46 @@ const Flow = () => {
       setNodes((nodes) => [...nodes, loadingNode]);
 
       try {
-        const apiKey = import.meta.env.VITE_STABLE_DIFFUSION_API_KEY;
-
-        if (!apiKey) {
-          throw new Error("API key is missing!");
-        }
-
+        // const apiKey = import.meta.env.VITE_STABLE_DIFFUSION_API_KEY; // don't need API key anymore; using reagent! 
+        // if (!apiKey) {
+        //   throw new Error("API key is missing!");
+        // } 
         const formData = new FormData();
-        formData.append("prompt", prompt);
-        formData.append("output_format", "webp");
+        formData.append("prompt", prompt); // make the prompt into form data
 
-        const response = await axios.post(
-          "https://api.stability.ai/v2beta/stable-image/generate/core",
-          formData,
-          {
-            responseType: "arraybuffer",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              Accept: "image/*",
-            },
+        // Make a POST request to the backend server (run the backend server with a separate terminal tab using node server.js)
+        const response = await axios.post("http://localhost:3000/api/generate-image", {
+            prompt, // Send the prompt as part of the request body
+          });
+      
+          if (response.status === 200) {
+            console.log(`Image url ${response.data.imageUrl} received from backend!`);
+
+            const newImageNode: AppNode = {
+              id: `image-${Date.now()}`,
+              type: "image",
+              position: { x: 250, y: 250 },
+              data: { content: response.data.imageUrl },
+            };
+
+            setNodes((nodes) =>
+              nodes.map((node) =>
+                node.id === loadingNodeId ? newImageNode : node
+              )
+            );
+
+          } else {
+            console.error(`Genreation Error: ${response.status}`);
           }
-        );
-
-        if (response.status === 200) {
-          const base64Image = `data:image/webp;base64,${btoa(
-            new Uint8Array(response.data).reduce(
-              (data, byte) => data + String.fromCharCode(byte),
-              ""
-            )
-          )}`;
-
-          const newImageNode: AppNode = {
-            id: `image-${Date.now()}`,
-            type: "image",
-            position: { x: 250, y: 250 },
-            data: { content: base64Image },
-          };
-
-          setNodes((nodes) =>
-            nodes.map((node) =>
-              node.id === loadingNodeId ? newImageNode : node
-            )
-          );
-        } else {
-          console.error(`API Error: ${response.status}`);
+        } 
+        catch (error) {
+          if (error instanceof Error) {
+            console.error("Failed to generate image:", error.message);
+          } else {
+            console.error("Unknown error occurred:", error);
+          }
         }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Failed to generate image:", error.message);
-        } else {
-          console.error("Unknown error occurred:", error);
-        }
-      }
+      
     },
     [setNodes]
   );

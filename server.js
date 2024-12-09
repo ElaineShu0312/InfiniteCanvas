@@ -4,7 +4,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 dotenv.config();
-console.log("Stability API Key:", process.env.STABILITY_API_KEY);
 
 
 const app = express();
