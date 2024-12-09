@@ -142,6 +142,7 @@ const Flow = () => {
   };
 
   const addImageNode = (content?: string) => {
+    console.log(content);
     const newNode: AppNode = {
       id: `image-${nodes.length + 1}`,
       type: "image",
@@ -152,60 +153,31 @@ const Flow = () => {
       data: {
         content:
           content ??
-          "https://upload.wikimedia.org/wikipedia/commons/8/87/Vincent_van_Gogh_-_Head_of_a_skeleton_with_a_burning_cigarette_-_Google_Art_Project.jpg",
+          "https://noggin-run-outputs.rgdata.net/b88eb8b8-b2b9-47b2-9796-47fcd15b7289.webp",
       },
     };
 
     setNodes((prevNodes) => [...prevNodes, newNode]);
   };
 
-  const generateImageNode = async (prompt: string = "bunny on the moon") => {
-    //bunny on the moon by default
-    console.log("generating image...");
-    //TODO: create a node that says " loading... " and take note of its id. replace that node with the new image once its done generating
+  const generateImageNode = async (prompt: string = "bunny on saturn wearing a hat") => {
+    console.log("Contacting backend to generate image...");
+  
     try {
-      const apiKey = import.meta.env.VITE_STABLE_DIFFUSION_API_KEY; // For Vite
-
-      if (!apiKey) {
-        throw new Error("API key is missing!");
-      }
-      console.log("found api key...");
-
-      // Prepare the FormData payload to send to the SD servers...
-      const formData = new FormData();
-      formData.append("prompt", prompt); // Use provided prompt or default
-      formData.append("output_format", "webp");
-
-      const response = await axios.post(
-        "https://api.stability.ai/v2beta/stable-image/generate/core",
-        formData,
-        {
-          responseType: "arraybuffer",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            Accept: "image/*",
-          },
-        }
-      );
-
-      console.log(response);
-
+      // Make a POST request to the backend server
+      const response = await axios.post("http://localhost:3000/api/generate-image", {
+        prompt, // Send the prompt as part of the request body
+      });
+  
       if (response.status === 200) {
-        console.log("received image!!");
-        const base64Image: string = `data:image/webp;base64,${btoa(
-          new Uint8Array(response.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
-        )}`;
-
-        console.log("converted image to base64");
-        console.log(base64Image);
-
+        console.log("Image received from backend!");
+        //const base64Image = response.data.image;
+  
         // Add an Image Node with the generated image data
-        addImageNode(base64Image);
+        //addImageNode(base64Image);
+        addImageNode(response.data.imageUrl);
       } else {
-        console.error(`API Error: ${response.status}`);
+        console.error(`Backend Error: ${response.status}`);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -221,7 +193,7 @@ const Flow = () => {
       <button onClick={addDefaultNode}> Add Simple Node</button>
       <button onClick={() => addImageNode()}>Add Default Image Node</button>
       <button
-        onClick={() => generateImageNode("kawaii bunny with a witch hat")}
+        onClick={() => generateImageNode("dog running on a hill")}
       >
         {" "}
         Generate an Image
