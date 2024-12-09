@@ -21,25 +21,32 @@ export function TextNode({ data }: NodeProps<TextNode>) {
   console.log(`TextNode content is currently: ${content}`);
 
   return (
-    <div className="react-flow__node-default" style={{ width: "fit-content" }}>
-      <textarea
-        ref={textareaRef}
-        value={content}
-        onChange={handleChange}
-        style={{
-          width: "100%",
-          height: "auto",
-          resize: "none",
-          border: "none",
-          outline: "none",
-          overflow: "hidden",
-          color: "inherit",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-      />
-      <Handle type="source" position={Position.Bottom} />
-      <Handle type="target" position={Position.Top} />
-    </div>
+    (
+      <div
+        className="react-flow__node-default"
+        style={{ width: "fit-content" }}
+      >
+        <textarea
+          ref={textareaRef}
+          value={content}
+          onChange={handleChange}
+          style={{
+            width: "100%",
+            height: "auto",
+            resize: "none",
+            border: "none",
+            outline: "none",
+            overflow: "hidden",
+            color: "inherit",
+            fontFamily: "inherit",
+            fontSize: "inherit",
+          }}
+        />
+        <Handle type="source" position={Position.Bottom} />
+        <Handle type="source" position={Position.Right} />
+        <Handle type="target" position={Position.Left} />
+        <Handle type="target" position={Position.Top} />
+      </div>
+    )
   );
 }
