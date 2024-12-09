@@ -24,7 +24,54 @@ const Flow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [clipboard, setClipboard] = useState<Array<AppNode> | null>(null);
-  const { getIntersectingNodes } = useReactFlow(); // React Flow's intersection detection
+
+  const handleKeydown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey) {
+        if (event.key === "c" || event.key === "C") {
+          handleCopy(event);
+        } else if (event.key === "x" || event.key === "X") {
+          handleCut(event);
+        } else if (event.key === "v" || event.key === "V") {
+          handlePaste(event);
+        }
+      }
+    },
+    [nodes, clipboard]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.removeEventListener("keydown", handleKeydown);
+    };
+  }, [handleKeydown]);
+
+  const handleCopy = (event: KeyboardEvent) => {
+    const selectedNodes = nodes.filter((node) => node.selected); // Assuming `selected` is part of your node data
+    setClipboard(selectedNodes);
+    event.preventDefault();
+  };
+
+  const handleCut = (event: KeyboardEvent) => {
+    const selectedNodes = nodes.filter((node) => node.selected);
+    setClipboard(selectedNodes);
+    setNodes((nodes) => nodes.filter((node) => !node.selected)); // Remove selected nodes
+    event.preventDefault();
+  };
+
+  const handlePaste = (event: KeyboardEvent) => {
+    if (clipboard) {
+      const newNodes = clipboard.map((node) => ({
+        ...node,
+        id: `${nodes.length + 1}`, // New unique ID
+        position: { x: node.position.x + 20, y: node.position.y + 20 }, // Slight offset
+      }));
+
+      setNodes((nodes) => [...nodes, ...newNodes]);
+      event.preventDefault();
+    }
+  };
 
   const onConnect: OnConnect = useCallback(
     (connection) => {
@@ -68,67 +115,8 @@ const Flow = () => {
     [nodes, setEdges, setNodes]
   );
 
-  // Whenever nodes are dragged, call this function (for detecting intersections)
-  const onNodeDrag = useCallback(
-    (_: MouseEvent, draggedNode: Node) => {
-      const intersections = getIntersectingNodes(draggedNode).map((n) => n.id);
-
-      setNodes((currentNodes) =>
-        currentNodes.map((node) => ({
-          ...node,
-          // add the "highlight-green" class to the intersection node, if another node is dragged onto it
-          className:
-            node.type === "intersection" && intersections.includes(node.id)
-              ? "highlight-green"
-              : "",
-        }))
-      );
-    },
-    [getIntersectingNodes, setNodes]
-  );
-
-  // Clipboard Operations
-  const handleCopy = useCallback(() => {
-    const selectedNodes = nodes.filter((node) => node.selected);
-    setClipboard(selectedNodes);
-  }, [nodes]);
-
-  const handleCut = useCallback(() => {
-    const selectedNodes = nodes.filter((node) => node.selected);
-    setClipboard(selectedNodes);
-    setNodes((nodes) => nodes.filter((node) => !node.selected));
-  }, [nodes]);
-
-  const handlePaste = useCallback(() => {
-    if (clipboard) {
-      const offset = 10 * (nodes.length + 1);
-      const newNodes = clipboard.map((node) => ({
-        ...node,
-        id: `${nodes.length + 1}`,
-        position: {
-          x: node.position.x + offset,
-          y: node.position.y + offset,
-        },
-      }));
-      setNodes((nodes) => [...nodes, ...newNodes]);
-    }
-  }, [clipboard, nodes, setNodes]);
-
-  // Keyboard Event Listener for Copy, Cut, Paste
-  useEffect(() => {
-    const handleKeydown = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey) {
-        if (event.key === "c") handleCopy();
-        if (event.key === "x") handleCut();
-        if (event.key === "v") handlePaste();
-      }
-    };
-    document.addEventListener("keydown", handleKeydown);
-    return () => document.removeEventListener("keydown", handleKeydown);
-  }, [handleCopy, handleCut, handlePaste]);
-
-  const addDefaultNode = () => {
-    const newDefaultNode: AppNode = {
+  const addNode = () => {
+    const newNode = {
       id: `${nodes.length + 1}`,
       type: "default", // default text type
       position: {
