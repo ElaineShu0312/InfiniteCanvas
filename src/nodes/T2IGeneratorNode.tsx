@@ -8,14 +8,14 @@ const T2IGeneratorNode = ({ data }: T2IGeneratorNodeProps) => {
     const [mode, setMode] = useState<"ready" | "generating" | "dragging">("ready");
     const [content, setContent] = useState("ready to generate");
 
-    const processContent = ( //todo, refactor as "updateNode"
-        overlappingContent: string, //todo, refactor as "input"
+    const updateNode = ( //todo, refactor as "updateNode"
+        inputNodeContent: string, //todo, refactor as "input"
         newMode?: "ready" | "generating" | "dragging" | "check"
     ) => {
 
         if (newMode === "generating") {
             setMode("generating");
-            setContent(`now generating "${overlappingContent}"`);
+            setContent(`now generating "${inputNodeContent}"`);
 
             // Increment offsets
             data.xOffset = (data.xOffset || 0) + 15;
@@ -39,8 +39,8 @@ const T2IGeneratorNode = ({ data }: T2IGeneratorNodeProps) => {
 
 
     useEffect(() => {
-        // Expose processContent to Flow.tsx for external control
-        data.processContent = processContent;
+        // Expose updateNode to Flow.tsx for external control
+        data.updateNode = updateNode;
     }, [data, mode]);
 
     // Dynamically determine the classes

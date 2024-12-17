@@ -4,7 +4,7 @@ import { TextNode } from "./TextNode";
 import { AppNode } from "./types";
 import { ImageNode } from "./ImageNode";
 import FunctionNode from "./FunctionNode";
-import IntersectionNode from "./IntersectionNode";
+//import IntersectionNode from "./IntersectionNode";
 import T2IGeneratorNode from "./T2IGeneratorNode";
 
 export const initialNodes: AppNode[] = [
@@ -40,15 +40,6 @@ export const initialNodes: AppNode[] = [
     },
   },
   {
-    id: "intersection-1",
-    type: "intersection",
-    position: { x: 150, y: 300 },
-    data: {
-      content: "Intersection Node (drag onto me!)",
-      processContent: () => {},
-    },
-  },
-  {
     id: "t2i-generator-1",
     type: "t2i-generator",
     position: { x: 10, y: 10 },
@@ -57,7 +48,7 @@ export const initialNodes: AppNode[] = [
       mode: "ready",
       yOffset: 0,
       xOffset: 0,
-      processContent: (content: string, mode: "ready" | "generating" | "dragging"| "check") => { return true; }, // Will get updated dynamically
+      updateNode: (content: string, mode: "ready" | "generating" | "dragging"| "check") => { return true; }, // Will get updated dynamically
     },
   },
 ];
@@ -67,6 +58,6 @@ export const nodeTypes: NodeTypes = {
   "position-logger": PositionLoggerNode,
   image: ImageNode,
   function: FunctionNode,
-  intersection: IntersectionNode,
+  //intersection: IntersectionNode,
   "t2i-generator": T2IGeneratorNode,
 };

@@ -106,7 +106,7 @@ const Flow = () => {
       setNodes((currentNodes) =>
         currentNodes.map((node) => {
           if ((node.type === "t2i-generator") && intersections.includes(node.id)) {
-            node.data.processContent?.("", "dragging"); // Trigger dragging mode
+            node.data.updateNode?.("", "dragging"); // Trigger dragging mode
             //console.log(node.data)
             return {
               ...node,
@@ -114,7 +114,7 @@ const Flow = () => {
             };
           }
           else if (node.type === "t2i-generator") {
-            node.data.processContent?.("", "ready");
+            node.data.updateNode?.("", "ready");
           }
           return {
             ...node,
@@ -206,50 +206,47 @@ const Flow = () => {
   const handleIntersections = (draggedNode: Node, intersections: string[]) => {
     setNodes((currentNodes) => {
       const updatedNodes = currentNodes.map((node) => {
-        if (isIntersector(node.type) && intersections.includes(node.id)) {
+        if (node.type === "t2i-generator" && intersections.includes(node.id)) {
           const overlappingNode = currentNodes.find((n) => n.id === draggedNode.id);
-          const overlappingContent =
+          const inputNodeContent = 
+          //grab the content of the node that was dragged on top, and use it as input for our generator
             overlappingNode && "content" in overlappingNode.data
               ? overlappingNode.data.content
               : overlappingNode && "label" in overlappingNode.data
               ? overlappingNode.data.label
               : "No content";
   
-          // Step 1: Check if the node is ready for generation
-          const isReady = node.data.processContent?.("", "check") === true;
-          console.log("checking if ready");
+          // Check if the node is ready for generation
+          const isReady = node.data.updateNode?.("", "check") === true;
+
           if (
             isReady &&
-            typeof overlappingContent === "string" &&
-            overlappingContent.trim() !== ""
+            typeof inputNodeContent === "string" &&
+            inputNodeContent.trim() !== ""
           ) 
           {
-            console.log("READY!");
-            // Step 2: Set the node to "generating" mode with the prompt
-            node.data.processContent?.(overlappingContent, "generating");
+
+            // Rerender the node in "generating" mode with the prompt
+            node.data.updateNode?.(inputNodeContent, "generating");
   
-            // Step 3: Trigger image generation
-            generateImageNode(overlappingContent, calcPositionAfterDrag(node.position, node, "below"))
+            // Generate a new image node, use helper function to decide where it should appear
+            generateImageNode(inputNodeContent, calcPositionAfterDrag(node.position, node, "below"))
               .then(() => {
                 console.log("Image generation complete!");
                 
-                node.data.processContent?.("", "ready");  
+                node.data.updateNode?.("", "ready");  
               })
               .catch((error) => {
                 console.error("Image generation failed:", error);
-                node.data.processContent?.("", "ready"); // Reset even on failure
+                node.data.updateNode?.("", "ready"); // Reset even on failure
               });
 
-                          // Print old and new positions for the overlapping node
+            // For the original overlapping node we just used as input,
+            // let's move it out of the way so it's not overlapping anymore.
             if (overlappingNode) {
               const overlappingNodePrevPosition = { x: overlappingNode.position.x, y: overlappingNode.position.y };
-              //lt's send the previous position and the intersection node to the calcPositionAfterDrag function
               const newPosition = calcPositionAfterDrag(overlappingNodePrevPosition, node, "above");
-              // move it
-              moveNode(overlappingNode.id, newPosition);
-              console.log(`Overlapping Node ID: ${overlappingNode.id}`);
-              console.log(`Old Position: ${JSON.stringify(overlappingNodePrevPosition)}`);
-              console.log(`New Position: ${JSON.stringify(newPosition)}`);
+              moveNode(overlappingNode.id, newPosition); //move it
             }
   
             return {
@@ -258,7 +255,7 @@ const Flow = () => {
           }
         }
         else if (node.type === "t2i-generator") { // the node is a generator, but nothing is intersecting with it
-          node.data.processContent?.("", "ready"); 
+          node.data.updateNode?.("", "ready"); 
         }
 
         return {
@@ -324,7 +321,7 @@ const Flow = () => {
         mode: "ready",
         yOffset: 0,
         xOffset: 0,
-        processContent: (content: string, mode: "ready" | "generating" | "dragging" | "check") => { return true; }, // Will get updated dynamically
+        updateNode: (content: string, mode: "ready" | "generating" | "dragging" | "check") => { return true; }, // Will get updated dynamically
       },
     };
 
@@ -333,7 +330,7 @@ const Flow = () => {
 
   const generateImageNode = useCallback(
     // Generates an image node with a prompt and optional position
-    async (prompt: string = "bunny on the moon", position: { x: number; y: number } = { x: 250, y: 250 }, testing: boolean = true) => {
+    async (prompt: string = "bunny on the moon", position: { x: number; y: number } = { x: 250, y: 250 }, testing: boolean = false) => {
       console.log(`Generating image with prompt: ${prompt}`);
       const loadingNodeId = `loading-${Date.now()}`;
       const loadingNode: AppNode = {

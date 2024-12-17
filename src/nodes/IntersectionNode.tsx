@@ -1,14 +1,15 @@
+/* -- note: basically deprecated, reimplemented as T2IGenerator Node -- */
 import React, { memo, useEffect } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { type IntersectionNode } from "./types";
 
 const IntersectionNode = ({ data }: NodeProps<IntersectionNode>) => {
-  const printContent = (overlappingContent: string | 'owo! drag content error!') => {
-    console.log(`Overlapping node content: ${overlappingContent}`);
+  const printContent = (inputNodeContent: string | 'owo! drag content error!') => {
+    console.log(`Overlapping node content: ${inputNodeContent}`);
   };
 
   useEffect(() => {
-    (data as any).processContent = (content: string) => printContent(content);
+    (data as any).updateNode = (content: string) => printContent(content);
   }, [data]);
 
     

@@ -8,16 +8,16 @@ export type PositionLoggerNode = Node<{ content: string }, "position-logger">;
 export type TextNode = Node<{ content: string }, "text">;
 export type ImageNode = Node<{ content: string }, "image">;
 export type FunctionNode = Node<{ content: string }, "function">;
-export type IntersectionNode = Node<{
-  processContent: (content: string) => void; 
-  content: string; 
-  className?: string 
-},"intersection">;
+// export type IntersectionNode = Node<{
+//   updateNode: (content: string) => void; 
+//   content: string; 
+//   className?: string 
+// },"intersection">;
 export type T2IGeneratorNode = Node<{
   yOffset: number;
   xOffset: any;
   mode: string; // a text to image generator node  
-  processContent: (content: string, mode: "ready" | "generating" | "dragging" | "check") => boolean;  
+  updateNode: (content: string, mode: "ready" | "generating" | "dragging" | "check") => boolean;  
   content: string; 
   className?: string;
 },"t2i-generator">;
@@ -33,6 +33,6 @@ export type AppNode =
   | PositionLoggerNode
   | ImageNode
   | FunctionNode
-  | IntersectionNode
+//  | IntersectionNode
   | T2IGeneratorNode;
 
