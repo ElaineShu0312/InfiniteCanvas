@@ -1,8 +1,19 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { type IntersectionNode } from "./types";
 
 const IntersectionNode = ({ data }: NodeProps<IntersectionNode>) => {
+  const printContent = (overlappingContent: string | 'owo! drag content error!') => {
+    console.log(`Overlapping node content: ${overlappingContent}`);
+  };
+
+  useEffect(() => {
+
+    (data as any).printContent = (content: string) => printContent(content);
+
+  }, [data]);
+
+    
   return (
     <div
       style={{

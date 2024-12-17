@@ -54,6 +54,7 @@ export const initialNodes: AppNode[] = [
     position: { x: 150, y: 300 },
     data: {
       content: "Intersection Node (drag onto me!)",
+      printContent: () => {},
     },
   },
   {
@@ -78,7 +79,7 @@ export const nodeTypes = {
   "position-logger": PositionLoggerNode,
   image: ImageNode,
   function: FunctionNode,
-  intersection: IntersectionNode, // Register your new node type
+  intersection: IntersectionNode, 
   // 'text': TextNode,
 
   // Add any of your custom nodes here!

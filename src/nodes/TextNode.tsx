@@ -18,7 +18,7 @@ export function TextNode({ data }: NodeProps<TextNode>) {
       }
     }
   }, [content]);
-  console.log(`TextNode content is currently: ${content}`);
+  //console.log(`TextNode content is currently: ${content}`);
 
   return (
     (

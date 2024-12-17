@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type MouseEvent } from "react";
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import axios from "axios";
 import {
   ReactFlow,
@@ -21,7 +21,7 @@ import useClipboard from "./hooks/useClipboard";
 const Flow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { getIntersectingNodes } = useReactFlow();
+  const { getIntersectingNodes, getNodesBounds } = useReactFlow();
 
   const { handleCopy, handleCut, handlePaste } = useClipboard(nodes, setNodes); // Use the custom hook
 
@@ -85,21 +85,129 @@ const Flow = () => {
     [nodes, setEdges, setNodes]
   );
 
+  
   const onNodeDrag = useCallback(
+    // node is actively being dragged. see below for onNodeDragStop function
+    // todo, make this shorter
+      (_: MouseEvent, draggedNode: Node) => {
+
+        setNodes((currentNodes) =>
+          currentNodes.map((node) => {
+            if (node.id === draggedNode.id) {
+              return {
+                ...node,
+                position: draggedNode.position,
+              };
+            }
+            return node;
+          })
+        );
+    
+        const intersections = getIntersectingNodes(draggedNode).map((n) => n.id);
+        setNodes((currentNodes) =>
+          currentNodes.map((node) => {
+            if (node.type === "intersection" && intersections.includes(node.id)) {
+              return {
+                ...node,
+                className: "highlight-green",
+              };
+            }
+            return {
+              ...node,
+              className: "",
+            };
+          })
+        );
+      },
+      [getIntersectingNodes, setNodes]
+    );
+
+  const onNodeDragStop = useCallback(
     (_: MouseEvent, draggedNode: Node) => {
+      console.log("node drag stop")
       const intersections = getIntersectingNodes(draggedNode).map((n) => n.id);
-      setNodes((currentNodes) =>
-        currentNodes.map((node) => ({
-          ...node,
-          className:
-            node.type === "intersection" && intersections.includes(node.id)
-              ? "highlight-green"
-              : "",
-        }))
-      );
+      handleIntersections(draggedNode, intersections);
     },
     [getIntersectingNodes, setNodes]
   );
+
+
+  // --- HELPER FUNCTIONS --- //
+  
+  const moveNode = (nodeId: string, newPosition: { x: number; y: number }) => {
+    /* takes a node and a new position as input, moves the node there */
+    setNodes((currentNodes) =>
+      currentNodes.map((node) => {
+        if (node.id === nodeId) {
+          if (node.position.x !== newPosition.x || node.position.y !== newPosition.y) {
+            return {
+              ...node,
+              position: newPosition,
+            };
+          }
+        }
+        return node;
+      })
+    );
+  };
+
+
+
+  const calcPositionAfterDrag = (
+    previousPosition: { x: number; y: number },
+    intersectionNode: Node
+  ) => {
+    const bounds = getNodesBounds([intersectionNode]);
+    const offset = 10; // Adjust the offset to place the node closer
+
+    let newPosition = { ...previousPosition };
+
+    let randomOffset = Math.floor(Math.random() * (bounds.width) - bounds.width/2); // random offset between -bounds.width and bounds.width
+    newPosition.x = bounds.x + randomOffset; // place to the right
+    newPosition.y = bounds.y + bounds.height + offset; // place below
+    return newPosition;
+  };
+
+  const handleIntersections = (
+    draggedNode: Node,
+    intersections: string[]
+  ) => {
+    setNodes((currentNodes) => {
+      const updatedNodes = currentNodes.map((node) => {
+        if (node.type === "intersection" && intersections.includes(node.id)) {
+          const overlappingNode = currentNodes.find((n) => n.id === draggedNode.id);
+          const overlappingContent =
+            overlappingNode && "content" in overlappingNode.data
+              ? overlappingNode.data.content
+              : overlappingNode && "label" in overlappingNode.data
+              ? overlappingNode.data.label
+              : "No content";
+          node.data.printContent?.(overlappingContent); // Pass the overlapping content
+          
+          
+           // Print old and new positions for the overlapping node
+          if (overlappingNode) {
+            const overlappingNodePrevPosition = { x: overlappingNode.position.x, y: overlappingNode.position.y };
+            //lt's send the previous position and the intersection node to the calcPositionAfterDrag function
+            const newPosition = calcPositionAfterDrag(overlappingNodePrevPosition, node);
+            // move it
+            moveNode(overlappingNode.id, newPosition);
+            console.log(`Overlapping Node ID: ${overlappingNode.id}`);
+            //console.log(`Old Position: ${JSON.stringify(overlappingNodePrevPosition)}`);
+            //console.log(`New Position: ${JSON.stringify(newPosition)}`);
+          }
+          
+          return {
+            ...node,
+            className: "",
+          };
+        }
+        return node;
+      });
+  
+      return updatedNodes;
+    });
+  };
 
   const addDefaultNode = () => {
     const newDefaultNode: AppNode = {
@@ -205,6 +313,7 @@ const Flow = () => {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onNodeDrag={onNodeDrag}
+        onNodeDragStop={onNodeDragStop}
         edges={edges}
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}

@@ -8,10 +8,11 @@ export type PositionLoggerNode = Node<{ content: string }, "position-logger">;
 export type TextNode = Node<{ content: string }, "text">;
 export type ImageNode = Node<{ content: string }, "image">;
 export type FunctionNode = Node<{ content: string }, "function">;
-export type IntersectionNode = Node<
-  { content: string; className?: string },
-  "intersection"
->;
+export type IntersectionNode = Node<{
+  printContent: (content: string) => void; 
+  content: string; 
+  className?: string 
+},"intersection">;
 
 // Aggregate node types
 export type AppNode =
