@@ -25,6 +25,8 @@ const Flow = () => {
 
   const { handleCopy, handleCut, handlePaste } = useClipboard(nodes, setNodes); // Use the custom hook
 
+
+  
   // Keyboard Event Listener for Copy, Cut, Paste
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -37,7 +39,8 @@ const Flow = () => {
     document.addEventListener("keydown", handleKeydown);
     return () => document.removeEventListener("keydown", handleKeydown);
   }, [handleCopy, handleCut, handlePaste]);
-
+  
+   // --- FUNCTIONS TRIGGERED BY CANVAS INTERACTIONS --- //
   const onConnect: OnConnect = useCallback(
     async (connection) => {
       const sourceNode = nodes.find((node) => node.id === connection.source);
@@ -85,46 +88,47 @@ const Flow = () => {
     [nodes, setEdges, setNodes]
   );
 
-  
   const onNodeDrag = useCallback(
-    // node is actively being dragged. see below for onNodeDragStop function
-    // todo, make this shorter
-      (_: MouseEvent, draggedNode: Node) => {
-
-        setNodes((currentNodes) =>
-          currentNodes.map((node) => {
-            if (node.id === draggedNode.id) {
-              return {
-                ...node,
-                position: draggedNode.position,
-              };
-            }
-            return node;
-          })
-        );
-    
-        const intersections = getIntersectingNodes(draggedNode).map((n) => n.id);
-        setNodes((currentNodes) =>
-          currentNodes.map((node) => {
-            if (node.type === "intersection" && intersections.includes(node.id)) {
-              return {
-                ...node,
-                className: "highlight-green",
-              };
-            }
+    (_: MouseEvent, draggedNode: Node) => {
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => {
+          if (node.id === draggedNode.id) {
             return {
               ...node,
-              className: "",
+              position: draggedNode.position,
             };
-          })
-        );
-      },
-      [getIntersectingNodes, setNodes]
-    );
+          }
+          return node;
+        })
+      );
+  
+      const intersections = getIntersectingNodes(draggedNode).map((n) => n.id);
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => {
+          if ((node.type === "t2i-generator") && intersections.includes(node.id)) {
+            node.data.processContent?.("", "dragging"); // Trigger dragging mode
+            //console.log(node.data)
+            return {
+              ...node,
+              className: "highlight-green",
+            };
+          }
+          else if (node.type === "t2i-generator") {
+            node.data.processContent?.("", "ready");
+          }
+          return {
+            ...node,
+            className: "",
+          };
+        })
+      );
+    },
+    [getIntersectingNodes, setNodes]
+  );
 
   const onNodeDragStop = useCallback(
     (_: MouseEvent, draggedNode: Node) => {
-      console.log("node drag stop")
+      //console.log("user stopped dragging a node ", draggedNode)
       const intersections = getIntersectingNodes(draggedNode).map((n) => n.id);
       handleIntersections(draggedNode, intersections);
     },
@@ -133,6 +137,36 @@ const Flow = () => {
 
 
   // --- HELPER FUNCTIONS --- //
+
+  const isIntersector = (nodeType: string | undefined) => {
+    if (!nodeType) return false;
+    //returns true if the type of node is an "intersector"
+    return nodeType === "intersection" || nodeType === "t2i-generator";
+  }
+
+  const calcPositionAfterDrag = (
+    previousPosition: { x: number; y: number },
+    intersectionNode: Node,
+    direction: "above" | "below" = "below"
+  ) => {
+    const bounds = getNodesBounds([intersectionNode]);
+    let newPosition = { ...previousPosition };
+  
+    const xOffset = typeof intersectionNode.data.xOffset === 'number' ? intersectionNode.data.xOffset : 10;
+    const yOffset = typeof intersectionNode.data.yOffset === 'number' ? intersectionNode.data.yOffset : 10;
+  
+    newPosition.x = bounds.x + xOffset; // place to the right
+    newPosition.y = bounds.y + bounds.height + yOffset; // place below
+
+    if (direction === "below") {
+      newPosition.x = bounds.x + xOffset; // place to the right
+      newPosition.y = bounds.y + bounds.height + yOffset; // place below
+    } else if (direction === "above") {
+      newPosition.x = bounds.x - bounds.width/2 - xOffset; // place to the left
+      newPosition.y = bounds.y - bounds.height - yOffset; // place above
+    }
+    return newPosition;
+  };
   
   const moveNode = (nodeId: string, newPosition: { x: number; y: number }) => {
     /* takes a node and a new position as input, moves the node there */
@@ -143,38 +177,36 @@ const Flow = () => {
             return {
               ...node,
               position: newPosition,
+              className: `${node.className} node-transition`, // Add transition class
             };
           }
         }
         return node;
       })
     );
+  
+    // Remove the transition class after the animation completes
+    setTimeout(() => {
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => {
+          if (node.id === nodeId) {
+            return {
+              ...node,
+              className: node.className ? node.className.replace(" node-transition", "") : "",
+            };
+          }
+          return node;
+        })
+      );
+    }, 1000); // Match the duration of the CSS transition
   };
+  
 
 
-
-  const calcPositionAfterDrag = (
-    previousPosition: { x: number; y: number },
-    intersectionNode: Node
-  ) => {
-    const bounds = getNodesBounds([intersectionNode]);
-    const offset = 10; // Adjust the offset to place the node closer
-
-    let newPosition = { ...previousPosition };
-
-    let randomOffset = Math.floor(Math.random() * (bounds.width) - bounds.width/2); // random offset between -bounds.width and bounds.width
-    newPosition.x = bounds.x + randomOffset; // place to the right
-    newPosition.y = bounds.y + bounds.height + offset; // place below
-    return newPosition;
-  };
-
-  const handleIntersections = (
-    draggedNode: Node,
-    intersections: string[]
-  ) => {
+  const handleIntersections = (draggedNode: Node, intersections: string[]) => {
     setNodes((currentNodes) => {
       const updatedNodes = currentNodes.map((node) => {
-        if (node.type === "intersection" && intersections.includes(node.id)) {
+        if (isIntersector(node.type) && intersections.includes(node.id)) {
           const overlappingNode = currentNodes.find((n) => n.id === draggedNode.id);
           const overlappingContent =
             overlappingNode && "content" in overlappingNode.data
@@ -182,35 +214,69 @@ const Flow = () => {
               : overlappingNode && "label" in overlappingNode.data
               ? overlappingNode.data.label
               : "No content";
-          node.data.printContent?.(overlappingContent); // Pass the overlapping content
-          
-          
-           // Print old and new positions for the overlapping node
-          if (overlappingNode) {
-            const overlappingNodePrevPosition = { x: overlappingNode.position.x, y: overlappingNode.position.y };
-            //lt's send the previous position and the intersection node to the calcPositionAfterDrag function
-            const newPosition = calcPositionAfterDrag(overlappingNodePrevPosition, node);
-            // move it
-            moveNode(overlappingNode.id, newPosition);
-            console.log(`Overlapping Node ID: ${overlappingNode.id}`);
-            //console.log(`Old Position: ${JSON.stringify(overlappingNodePrevPosition)}`);
-            //console.log(`New Position: ${JSON.stringify(newPosition)}`);
+  
+          // Step 1: Check if the node is ready for generation
+          const isReady = node.data.processContent?.("", "check") === true;
+          console.log("checking if ready");
+          if (
+            isReady &&
+            typeof overlappingContent === "string" &&
+            overlappingContent.trim() !== ""
+          ) 
+          {
+            console.log("READY!");
+            // Step 2: Set the node to "generating" mode with the prompt
+            node.data.processContent?.(overlappingContent, "generating");
+  
+            // Step 3: Trigger image generation
+            generateImageNode(overlappingContent, calcPositionAfterDrag(node.position, node, "below"))
+              .then(() => {
+                console.log("Image generation complete!");
+                
+                node.data.processContent?.("", "ready");  
+              })
+              .catch((error) => {
+                console.error("Image generation failed:", error);
+                node.data.processContent?.("", "ready"); // Reset even on failure
+              });
+
+                          // Print old and new positions for the overlapping node
+            if (overlappingNode) {
+              const overlappingNodePrevPosition = { x: overlappingNode.position.x, y: overlappingNode.position.y };
+              //lt's send the previous position and the intersection node to the calcPositionAfterDrag function
+              const newPosition = calcPositionAfterDrag(overlappingNodePrevPosition, node, "above");
+              // move it
+              moveNode(overlappingNode.id, newPosition);
+              console.log(`Overlapping Node ID: ${overlappingNode.id}`);
+              console.log(`Old Position: ${JSON.stringify(overlappingNodePrevPosition)}`);
+              console.log(`New Position: ${JSON.stringify(newPosition)}`);
+            }
+  
+            return {
+              ...node, className:"", // Reset the highlight
+            };
           }
-          
-          return {
-            ...node,
-            className: "",
-          };
         }
-        return node;
+        else if (node.type === "t2i-generator") { // the node is a generator, but nothing is intersecting with it
+          node.data.processContent?.("", "ready"); 
+        }
+
+        return {
+          ...node,
+          className: "",
+        };
       });
   
       return updatedNodes;
     });
   };
+  
+  //*** -- Node Adders -- ***/
 
-  const addDefaultNode = () => {
-    const newDefaultNode: AppNode = {
+  
+
+  const addTextNode = () => {
+    const newTextNode: AppNode = {
       id: `${nodes.length + 1}`,
       type: "default",
       position: {
@@ -223,7 +289,7 @@ const Flow = () => {
       },
     };
 
-    setNodes((prevNodes) => [...prevNodes, newDefaultNode]);
+    setNodes((prevNodes) => [...prevNodes, newTextNode]);
   };
 
   const addImageNode = (content?: string) => {
@@ -245,17 +311,58 @@ const Flow = () => {
     setNodes((prevNodes) => [...prevNodes, newNode]);
   };
 
+  const addT2IGenerator = () => {
+    const newT2IGeneratorNode: AppNode = {
+      id: `t2i-generator-${nodes.length + 1}`,
+      type: "t2i-generator",
+      position: {
+        x: Math.random() * 250,
+        y: Math.random() * 250,
+      },
+      data: {
+        content: "",
+        mode: "ready",
+        yOffset: 0,
+        xOffset: 0,
+        processContent: (content: string, mode: "ready" | "generating" | "dragging" | "check") => { return true; }, // Will get updated dynamically
+      },
+    };
+
+    setNodes((prevNodes) => [...prevNodes, newT2IGeneratorNode]);
+  };
+
   const generateImageNode = useCallback(
-    async (prompt: string = "bunny on the moon") => {
+    // Generates an image node with a prompt and optional position
+    async (prompt: string = "bunny on the moon", position: { x: number; y: number } = { x: 250, y: 250 }, testing: boolean = true) => {
       console.log(`Generating image with prompt: ${prompt}`);
       const loadingNodeId = `loading-${Date.now()}`;
       const loadingNode: AppNode = {
         id: loadingNodeId,
         type: "default",
-        position: { x: 250, y: 250 },
+        position,
         data: { label: "", content: "Loading..." },
       };
       setNodes((nodes) => [...nodes, loadingNode]);
+
+      // if the testing paramter is true, let's just use a default image to avoid generation costs
+      if (testing) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const newImageNode: AppNode = {
+          id: `image-${Date.now()}`,
+          type: "image",
+          position,
+          data: { content: "https://collectionapi.metmuseum.org/api/collection/v1/iiif/459123/913555/main-image" },
+        };
+
+        setNodes((nodes) =>
+          nodes.map((node) =>
+            node.id === loadingNodeId ? newImageNode : node
+          )
+        );
+        return;
+      }
+
+      // let's generate the image for real for real
 
       try {
         const formData = new FormData();
@@ -272,7 +379,7 @@ const Flow = () => {
             const newImageNode: AppNode = {
               id: `image-${Date.now()}`,
               type: "image",
-              position: { x: 250, y: 250 },
+              position,
               data: { content: response.data.imageUrl },
             };
 
@@ -298,16 +405,25 @@ const Flow = () => {
     [setNodes]
   );
 
+
   return (
     <>
-      <button onClick={addDefaultNode}> Add Simple Node</button>
-      <button onClick={() => addImageNode()}>Add Default Image Node</button>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '10px' }}>
+        <button onClick={addTextNode}> Text </button>
+        <button onClick={() => addImageNode()}>Image</button>
+        <button onClick={() => addT2IGenerator()}>New Text to Image Generator</button>
+      </div>
+      {/* image generation button */
+      /*
       <button
         onClick={() => generateImageNode("kawaii bunny with a witch hat")}
       >
         {" "}
         Generate an Image
-      </button>
+      </button> */
+      }
+
+
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}

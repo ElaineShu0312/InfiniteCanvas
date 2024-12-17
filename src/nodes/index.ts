@@ -1,11 +1,11 @@
 import type { NodeTypes } from "@xyflow/react";
-
 import { PositionLoggerNode } from "./PositionLoggerNode";
 import { TextNode } from "./TextNode";
 import { AppNode } from "./types";
 import { ImageNode } from "./ImageNode";
 import FunctionNode from "./FunctionNode";
 import IntersectionNode from "./IntersectionNode";
+import T2IGeneratorNode from "./T2IGeneratorNode";
 
 export const initialNodes: AppNode[] = [
   { id: "a", type: "input", position: { x: 0, y: 0 }, data: { label: "wire" } },
@@ -31,15 +31,6 @@ export const initialNodes: AppNode[] = [
         "https://upload.wikimedia.org/wikipedia/commons/8/87/Vincent_van_Gogh_-_Head_of_a_skeleton_with_a_burning_cigarette_-_Google_Art_Project.jpg",
     },
   },
-  // {
-  //   id: "f",
-  //   type: "image",
-  //   position: { x: -200, y: 400 },
-  //   data: {
-  //     content: "https://www.vincentvangogh.org/assets/img/self-portrait.jpg",
-  //   },
-  // },
-
   {
     id: "f",
     type: "function",
@@ -54,33 +45,28 @@ export const initialNodes: AppNode[] = [
     position: { x: 150, y: 300 },
     data: {
       content: "Intersection Node (drag onto me!)",
-      printContent: () => {},
+      processContent: () => {},
     },
   },
   {
-    id: "g",
-    type: "input",
-    position: { x: 100, y: 400 },
-    data: { label: "simple vector logo for a AI Art generation website" },
-  },
-  {
-    id: "h",
-    type: "input",
-    position: { x: 200, y: 400 },
+    id: "t2i-generator-1",
+    type: "t2i-generator",
+    position: { x: 10, y: 10 },
     data: {
-      label:
-        "simple vector logo for AI art generation tool, similar to Figma logo, with white background",
+      content: "",
+      mode: "ready",
+      yOffset: 0,
+      xOffset: 0,
+      processContent: (content: string, mode: "ready" | "generating" | "dragging"| "check") => { return true; }, // Will get updated dynamically
     },
   },
 ];
 
-export const nodeTypes = {
+export const nodeTypes: NodeTypes = {
   default: TextNode,
   "position-logger": PositionLoggerNode,
   image: ImageNode,
   function: FunctionNode,
-  intersection: IntersectionNode, 
-  // 'text': TextNode,
-
-  // Add any of your custom nodes here!
-} satisfies NodeTypes;
+  intersection: IntersectionNode,
+  "t2i-generator": T2IGeneratorNode,
+};

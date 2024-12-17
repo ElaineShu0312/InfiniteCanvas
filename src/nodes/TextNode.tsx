@@ -7,7 +7,8 @@ export function TextNode({ data }: NodeProps<TextNode>) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
+    data.content = e.target.value; //update this node's data
+    setContent(data.content); //re render with the new content
   };
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export function TextNode({ data }: NodeProps<TextNode>) {
       }
     }
   }, [content]);
-  //console.log(`TextNode content is currently: ${content}`);
+  console.log(`TextNode content is currently: ${content}`);
 
   return (
     (

@@ -3,7 +3,6 @@ import Sidebar from "./Sidebar";
 const About = () => {
   return (
     <div>
-      <Sidebar />
       <div className="flex h-screen">
         {/* Main Content */}
         <div className="flex-1 p-4 overflow-y-auto">

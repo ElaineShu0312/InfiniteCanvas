@@ -8,9 +8,7 @@ const IntersectionNode = ({ data }: NodeProps<IntersectionNode>) => {
   };
 
   useEffect(() => {
-
-    (data as any).printContent = (content: string) => printContent(content);
-
+    (data as any).processContent = (content: string) => printContent(content);
   }, [data]);
 
     
