@@ -14,7 +14,7 @@ app.use(express.json());
 
 // New /overview route
 app.get("/overview", (req, res) => {
-  res.end('Welcome to the "overview page" of the nginX project');
+  res.end('if you can see this, that means the server is working!');
 });
 
 app.post("/api/generate-image", async (req, res) => {

@@ -365,8 +365,12 @@ const Flow = () => {
         const formData = new FormData();
         formData.append("prompt", prompt); // make the prompt into form data
 
-        // Make a POST request to the backend server (run the backend server with a separate terminal tab using node server.js)
-        const response = await axios.post("http://localhost:3000/api/generate-image", {
+        // Make a POST request to the backend server 
+        // ---- USE THIS ONE if you are running the backend server with a separate local terminal tab using node server.js!) ----
+        //const response = await axios.post("http://localhost:3000/api/generate-image", {
+        
+        // ---- USE THIS ONE for the online backend server!) ----
+        const response = await axios.post("http://104.200.25.53/api/generate-image", {
             prompt, // Send the prompt as part of the request body
           });
       
