@@ -6,7 +6,7 @@ interface T2IGeneratorNodeProps extends NodeProps<T2IGeneratorNode> {}
 
 const T2IGeneratorNode = ({ data }: T2IGeneratorNodeProps) => {
     const [mode, setMode] = useState<"ready" | "generating" | "dragging">("ready");
-    const [content, setContent] = useState("ready to generate");
+    const [content, setContent] = useState("ready to generate! \n(drag and drop here)");
 
     const updateNode = ( //todo, refactor as "updateNode"
         inputNodeContent: string, //todo, refactor as "input"
@@ -30,7 +30,7 @@ const T2IGeneratorNode = ({ data }: T2IGeneratorNodeProps) => {
             setContent("drop to generate...");
         } else {
             setMode("ready");
-            setContent("ready to generate");
+            setContent("ready to generate! \n(drag and drop here)");
         }
 
         return mode === "ready" || mode === "dragging"; // Return whether the node is ready
@@ -56,9 +56,9 @@ const T2IGeneratorNode = ({ data }: T2IGeneratorNodeProps) => {
         <div
             className={`p-3 border border-gray-700 rounded ${backgroundClass} transition-all duration-300`}
         >
-            <div style={{ fontWeight: "bold" }}>{"Text to Image Generator"}</div>
+            <div style={{ fontWeight: "bold" }}>{"Generator"}</div>
             <div style={{ fontSize: "smaller", color: "#555" }}>{content}</div>
-            <div>Current Mode: {mode}</div>
+           {/*<div>Current Mode: {mode}</div>*/}
 
             <Handle type="target" position={Position.Top} />
             <Handle type="source" position={Position.Bottom} />

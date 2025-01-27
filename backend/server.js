@@ -2,15 +2,20 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import dotenv from "dotenv";
+import dbPromise from "./database.js"; // Import the database module
 
 dotenv.config();
-
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// New /overview route
+app.get("/overview", (req, res) => {
+  res.end('Welcome to the "overview page" of the nginX project');
+});
 
 app.post("/api/generate-image", async (req, res) => {
   const { prompt = "lizard on saturn" } = req.body; //default prompt with no form data
