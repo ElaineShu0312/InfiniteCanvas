@@ -48,8 +48,12 @@ export const initialNodes: AppNode[] = [
       mode: "ready",
       yOffset: 0,
       xOffset: 0,
-      updateNode: (content: string, mode: "ready" | "generating" | "dragging"| "check") => { return true; }, // Will get updated dynamically
-    },
+      updateNode: (content: string, mode: "dragging" | "ready" | "generating" | "check") => {
+        console.log(`new node with content: ${content} and mode: ${mode}`);
+        return true;
+        }
+      }
+
   },
 ];
 

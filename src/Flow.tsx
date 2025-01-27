@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, type MouseEvent } from "react";
 import axios from "axios";
 import {
   ReactFlow,
@@ -138,11 +138,11 @@ const Flow = () => {
 
   // --- HELPER FUNCTIONS --- //
 
-  const isIntersector = (nodeType: string | undefined) => {
-    if (!nodeType) return false;
-    //returns true if the type of node is an "intersector"
-    return nodeType === "intersection" || nodeType === "t2i-generator";
-  }
+  // const isIntersector = (nodeType: string | undefined) => {
+  //   if (!nodeType) return false;
+  //   //returns true if the type of node is an "intersector"
+  //   return nodeType === "intersection" || nodeType === "t2i-generator";
+  // }
 
   const calcPositionAfterDrag = (
     previousPosition: { x: number; y: number },
@@ -313,15 +313,18 @@ const Flow = () => {
       id: `t2i-generator-${nodes.length + 1}`,
       type: "t2i-generator",
       position: {
-        x: Math.random() * 250,
-        y: Math.random() * 250,
+      x: Math.random() * 250,
+      y: Math.random() * 250,
       },
       data: {
-        content: "",
-        mode: "ready",
-        yOffset: 0,
-        xOffset: 0,
-        updateNode: (content: string, mode: "ready" | "generating" | "dragging" | "check") => { return true; }, // Will get updated dynamically
+      content: "",
+      mode: "ready",
+      yOffset: 0,
+      xOffset: 0,
+      updateNode: (content: string, mode: "dragging" | "ready" | "generating" | "check") => {
+        console.log(`new node with content: ${content} and mode: ${mode}`);
+        return true;
+      }
       },
     };
 

@@ -22,7 +22,7 @@
     "reactflow": "^11.11.4",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   },
   "license": "MIT",
   "devDependencies": {

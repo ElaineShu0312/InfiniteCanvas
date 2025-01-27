@@ -13,8 +13,12 @@ app.use(cors());
 app.use(express.json());
 
 // New /overview route
+app.get("/", (req, res) => {
+  res.end('Hello World! if you can see this, that means the backend server is working!');
+});
+// New /overview route
 app.get("/overview", (req, res) => {
-  res.end('if you can see this, that means the server is working!');
+  res.end('if you can see this, that means the backend server is working!');
 });
 
 app.post("/api/generate-image", async (req, res) => {

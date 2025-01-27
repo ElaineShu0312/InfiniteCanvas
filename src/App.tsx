@@ -1,12 +1,12 @@
 import { ReactFlowProvider } from "@xyflow/react";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import Flow from "./Flow";
 import About from "./About";
 import Sidebar from "./Sidebar";
 
 function AppContent() {
-  const location = useLocation();
+  //const location = useLocation();
   const [showSidebar, setShowSidebar] = useState(false);
 
   const toggleSidebar = () => {
